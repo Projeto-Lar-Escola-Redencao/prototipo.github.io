@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lar Escola Redenção | Portal e Gestão</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js para geração de PDF real -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .page-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Sistema de Toasts (Notificações) */
+        .toast {
+            transition: all 0.3s ease-in-out;
+            transform: translateX(120%);
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
+
+    <!-- Container de Notificações (Toasts) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[150] flex flex-col gap-2"></div>
+
+    <!-- Navegação Principal -->
+    <nav class="bg-[#4aa317] text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-3 cursor-pointer py-2" onclick="navigateTo('inicio')">
+                    <img src="logo.png" alt="Logo Lar Escola Redenção" class="h-12 w-auto object-contain">
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <button onclick="navigateTo('inicio')" class="hover:text-gray-200 transition-colors font-medium">Início</button>
+                    <button onclick="navigateTo('transparencia')" class="hover:text-gray-200 transition-colors font-medium">Transparência</button>
+                    <button onclick="navigateTo('eventos')" class="hover:text-gray-200 transition-colors font-medium">Eventos</button>
+                    <button onclick="navigateTo('doacoes')" class="hover:text-gray-200 transition-colors font-medium">Doações</button>
+                    <button onclick="navigateTo('grafica')" class="hover:text-gray-200 transition-colors font-medium">Gráfica Redenção</button>
+                    <button onclick="navigateTo('interna')" class="bg-[#3b8212] hover:bg-[#2c610e] border border-[#2c610e] px-4 py-2 rounded-md font-semibold flex items-center space-x-2 transition-colors shadow-md text-white">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                        <span>Acesso Interno</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-gray-200 focus:outline-none"><i class="fa-solid fa-bars text-2xl"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden bg-[#3b8212] pb-4 px-4 space-y-2 border-t border-[#2c610e]">
+            <button onclick="navigateTo('inicio')" class="block w-full text-left py-2 hover:text-gray-200 text-white">Início</button>
+            <button onclick="navigateTo('transparencia')" class="block w-full text-left py-2 hover:text-gray-200 text-white">Transparência</button>
+            <button onclick="navigateTo('eventos')" class="block w-full text-left py-2 hover:text-gray-200 text-white">Eventos</button>
+            <button onclick="navigateTo('doacoes')" class="block w-full text-left py-2 hover:text-gray-200 text-white">Doações</button>
+            <button onclick="navigateTo('grafica')" class="block w-full text-left py-2 hover:text-gray-200 text-white">Gráfica Redenção</button>
+            <button onclick="navigateTo('interna')" class="block w-full text-left py-2 font-bold text-gray-200">Acesso Interno <i class="fa-solid fa-lock text-xs ml-1"></i></button>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        <!-- ================= INÍCIO ================= -->
+        <section id="inicio" class="page-section active">
+            <!-- Hero -->
+            <div class="bg-white py-16 sm:py-24 border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 text-center">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
+                        Transformando vidas <br><span class="text-gray-500">através de ações socioeducativas.</span>
+                    </h1>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">O Lar Escola Redenção atende crianças e adolescentes em situação de vulnerabilidade, oferecendo apoio pedagógico, social e estrutural para famílias da nossa comunidade.</p>
+                </div>
+            </div>
+
+            <!-- Eventos Recentes na Home -->
+            <div class="py-16 bg-gray-100 border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-10">
+                        <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Eventos em Destaque</h2>
+                        <p class="text-gray-600">Acompanhe e participe das nossas ações mais recentes.</p>
+                    </div>
+                    <div id="listaEventosHome" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Preenchido via JS (apenas os 3 mais recentes) -->
+                    </div>
+                    <div class="text-center mt-8">
+                        <button onclick="navigateTo('eventos')" class="text-[#4aa317] font-bold hover:text-[#3b8212] transition underline decoration-2 underline-offset-4">Ver todos os eventos</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menus de Doação e Gráfica -->
+            <div class="bg-white py-16 border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 text-center">
+                    <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Faça parte da nossa rede de apoio</h2>
+                    <p class="text-gray-600 mb-8 max-w-2xl mx-auto text-lg">Sua contribuição ou o uso dos serviços da nossa gráfica garantem o futuro de centenas de crianças e adolescentes.</p>
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-6">
+                        <button onclick="navigateTo('doacoes')" class="w-full sm:w-auto bg-[#4aa317] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#3b8212] transition shadow-lg text-lg border-2 border-[#4aa317] flex items-center justify-center">
+                            Quero Doar <i class="fa-solid fa-heart ml-3 text-xl"></i>
+                        </button>
+                        <button onclick="navigateTo('grafica')" class="w-full sm:w-auto bg-white text-[#4aa317] border-2 border-[#4aa317] px-8 py-4 rounded-xl font-bold hover:bg-gray-50 transition shadow-sm text-lg flex items-center justify-center">
+                            Conheça nossa Gráfica <i class="fa-solid fa-print ml-3 text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- História da Organização -->
+            <div class="py-16 bg-gray-50 border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
+                    <div class="w-full md:w-1/2">
+                        <h2 class="text-3xl font-extrabold text-gray-900 mb-6"><i class="fa-solid fa-landmark text-[#4aa317] mr-2"></i> Nossa História</h2>
+                        <p class="text-gray-600 mb-4 text-justify leading-relaxed">
+                            Fundado com o propósito de mitigar a desigualdade social em nossa comunidade, o Lar Escola Redenção iniciou suas atividades acolhendo pequenos grupos de jovens para reforço escolar. Com o passar dos anos e o apoio de voluntários, nossa estrutura cresceu.
+                        </p>
+                        <p class="text-gray-600 mb-4 text-justify leading-relaxed">
+                            Hoje, somos um centro de referência em ações socioeducativas, contando com oficinas diárias, acompanhamento psicológico e assistência familiar. Acreditamos que a educação, aliada ao afeto e à disciplina, é a chave para reescrever futuros. Nossa gráfica própria nasceu como um projeto de sustentabilidade, permitindo que a instituição gere sua própria renda e invista diretamente na qualidade de vida dos nossos atendidos.
+                        </p>
+                    </div>
+                    <div class="w-full md:w-1/2 grid grid-cols-2 gap-4">
+                        <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&q=80" alt="Crianças estudando" class="rounded-xl shadow-md w-full h-48 object-cover transition duration-500">
+                        <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=80" alt="Apoio social" class="rounded-xl shadow-md w-full h-48 object-cover transition duration-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impactos -->
+            <div class="py-16 bg-white border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="p-8 bg-gray-50 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                        <i class="fa-solid fa-users text-5xl text-[#4aa317] mb-4"></i>
+                        <h3 class="text-3xl font-bold text-gray-900">+150</h3>
+                        <p class="text-gray-600 mt-2 font-medium">Atendidos anualmente</p>
+                    </div>
+                    <div class="p-8 bg-gray-50 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                        <i class="fa-solid fa-book-open text-5xl text-[#4aa317] mb-4"></i>
+                        <h3 class="text-3xl font-bold text-gray-900">Oficinas</h3>
+                        <p class="text-gray-600 mt-2 font-medium">Socioeducativas diárias</p>
+                    </div>
+                    <div class="p-8 bg-gray-50 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                        <i class="fa-solid fa-print text-5xl text-[#4aa317] mb-4"></i>
+                        <h3 class="text-3xl font-bold text-gray-900">Gráfica Própria</h3>
+                        <p class="text-gray-600 mt-2 font-medium">Geração de renda sustentável</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TRANSPARÊNCIA ================= -->
+        <section id="transparencia" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 py-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-extrabold text-gray-900">Portal de Transparência</h2>
+                    <p class="mt-4 text-gray-600 max-w-2xl mx-auto">Relatórios de atividades, demonstrativos financeiros e parcerias institucionais.</p>
+                </div>
+                <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 overflow-hidden">
+                    <ul class="divide-y divide-gray-200">
+                        <!-- Relatório 1 -->
+                        <li>
+                            <div class="px-6 py-5 flex flex-col sm:flex-row items-center justify-between hover:bg-gray-50 transition gap-4">
+                                <div class="flex items-center text-center sm:text-left w-full sm:w-auto">
+                                    <i class="fa-solid fa-file-pdf text-[#4aa317] text-3xl hidden sm:block mr-4"></i>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-gray-900">Balanço Financeiro e Arrecadação 2026</h4>
+                                        <p class="text-sm text-gray-500">Publicado em: 15/07/2026 • Contabilidade</p>
+                                    </div>
+                                </div>
+                                <button onclick="baixarPDF('Balanço Financeiro 2026')" class="bg-[#4aa317] text-white px-5 py-2.5 rounded-md hover:bg-[#3b8212] border border-[#4aa317] transition w-full sm:w-auto font-medium flex items-center justify-center">
+                                    <i class="fa-solid fa-download mr-2"></i> Baixar PDF
+                                </button>
+                            </div>
+                        </li>
+                        <!-- Relatório 2 -->
+                        <li>
+                            <div class="px-6 py-5 flex flex-col sm:flex-row items-center justify-between hover:bg-gray-50 transition gap-4">
+                                <div class="flex items-center text-center sm:text-left w-full sm:w-auto">
+                                    <i class="fa-solid fa-file-pdf text-[#4aa317] text-3xl hidden sm:block mr-4"></i>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-gray-900">Relatório de Impacto Social 2025</h4>
+                                        <p class="text-sm text-gray-500">Publicado em: 10/01/2026 • Assistência Social</p>
+                                    </div>
+                                </div>
+                                <button onclick="baixarPDF('Relatório de Impacto Social 2025')" class="bg-[#4aa317] text-white px-5 py-2.5 rounded-md hover:bg-[#3b8212] border border-[#4aa317] transition w-full sm:w-auto font-medium flex items-center justify-center">
+                                    <i class="fa-solid fa-download mr-2"></i> Baixar PDF
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= EVENTOS (PÚBLICO) ================= -->
+        <section id="eventos" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 py-16">
+                <div class="text-center mb-12">
+                    <i class="fa-solid fa-calendar-days text-5xl text-[#4aa317] mb-4"></i>
+                    <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Agenda de Eventos</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Participe dos nossos eventos e ajude a fortalecer os projetos do Lar Escola Redenção.</p>
+                </div>
+                
+                <div id="listaEventosPublicos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= DOAÇÕES ================= -->
+        <section id="doacoes" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 py-16">
+                <div class="text-center mb-12">
+                    <i class="fa-solid fa-hand-holding-dollar text-6xl text-[#4aa317] mb-4"></i>
+                    <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Apoie o Lar Escola Redenção</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Sua contribuição garante a continuidade das nossas ações socioeducativas.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- PIX -->
+                    <div class="bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Doação Única (PIX)</h3>
+                        <p class="text-gray-500 mb-6">Faça uma contribuição pontual de qualquer valor.</p>
+                        <div class="grid grid-cols-3 gap-3 mb-6">
+                            <button onclick="setValorPix(30)" class="border-2 border-gray-300 bg-gray-50 rounded-md py-2 font-bold text-gray-700 hover:border-[#4aa317] hover:text-[#4aa317] focus:border-[#4aa317] focus:text-[#4aa317] transition">R$ 30</button>
+                            <button onclick="setValorPix(50)" class="border-2 border-gray-300 bg-gray-50 rounded-md py-2 font-bold text-gray-700 hover:border-[#4aa317] hover:text-[#4aa317] focus:border-[#4aa317] focus:text-[#4aa317] transition">R$ 50</button>
+                            <button onclick="setValorPix(100)" class="border-2 border-gray-300 bg-gray-50 rounded-md py-2 font-bold text-gray-700 hover:border-[#4aa317] hover:text-[#4aa317] focus:border-[#4aa317] focus:text-[#4aa317] transition">R$ 100</button>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ou informe outro valor (R$)</label>
+                            <input type="number" id="valorPixPersonalizado" placeholder="Ex: 150" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-[#4aa317] focus:border-[#4aa317] p-3 border">
+                        </div>
+                        <button onclick="abrirModalPix()" class="w-full bg-[#4aa317] text-white font-bold py-4 rounded-md hover:bg-[#3b8212] transition flex items-center justify-center text-lg shadow-md border border-[#4aa317]">
+                            <i class="fa-brands fa-pix mr-2"></i> Gerar PIX Copia e Cola
+                        </button>
+                    </div>
+
+                    <!-- Cartão (Recorrente) -->
+                    <div class="bg-[#4aa317] p-8 rounded-xl shadow-md text-white">
+                        <h3 class="text-2xl font-bold mb-2 text-white">Apoio Recorrente</h3>
+                        <p class="text-white opacity-90 mb-6">Torne-se um mantenedor escolhendo um de nossos pacotes.</p>
+                        <div class="space-y-4">
+                            <label class="block bg-[#3b8212] border border-[#2c610e] rounded-lg p-5 cursor-pointer hover:bg-[#2c610e] transition">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <input type="radio" name="pacote_rec" checked class="w-5 h-5 text-white focus:ring-white mr-3 accent-white">
+                                        <div><h4 class="font-bold text-lg text-white">Pacote Semestral</h4><p class="text-sm text-white opacity-80">6 meses</p></div>
+                                    </div>
+                                    <span class="block font-bold text-xl text-white">R$ 40<span class="text-sm font-normal text-white opacity-80">/mês</span></span>
+                                </div>
+                            </label>
+                            <label class="block bg-[#3b8212] border border-[#2c610e] rounded-lg p-5 cursor-pointer hover:bg-[#2c610e] transition">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <input type="radio" name="pacote_rec" class="w-5 h-5 text-white focus:ring-white mr-3 accent-white">
+                                        <div><h4 class="font-bold text-lg text-white">Pacote Anual <span class="bg-white text-[#4aa317] text-xs px-2 py-1 rounded-full ml-2 font-bold">Recomendado</span></h4><p class="text-sm text-white opacity-80">12 meses</p></div>
+                                    </div>
+                                    <span class="block font-bold text-xl text-white">R$ 75<span class="text-sm font-normal text-white opacity-80">/mês</span></span>
+                                </div>
+                            </label>
+                        </div>
+                        <button onclick="abrirModalCartao()" class="w-full bg-white text-[#4aa317] font-bold py-4 rounded-md hover:bg-gray-100 transition mt-6 flex items-center justify-center text-lg shadow-md border border-white">
+                            <i class="fa-regular fa-credit-card mr-2"></i> Assinar via Cartão de Crédito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= GRÁFICA ================= -->
+        <section id="grafica" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 py-16">
+                <div class="text-center mb-16">
+                    <i class="fa-solid fa-print text-5xl text-[#4aa317] mb-4"></i>
+                    <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Gráfica Redenção</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto text-lg">Todo o lucro dos nossos serviços é revertido integralmente para a manutenção dos projetos sociais. Clique para ver nossa galeria.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                    <!-- Categoria 1 -->
+                    <div onclick="abrirModalGrafica('Banners e Lonas', [
+                            {nome: 'Banner Fotográfico', img: 'https://images.unsplash.com/photo-1562664377-709f2c337eb2?w=400&q=80'},
+                            {nome: 'Lona Promocional', img: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&q=80'},
+                            {nome: 'Faixa de Evento', img: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80'},
+                            {nome: 'Painel Fosco', img: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?w=400&q=80'}
+                        ])" class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-200 overflow-hidden cursor-pointer group">
+                        <div class="overflow-hidden h-48"><img src="https://images.unsplash.com/photo-1562664377-709f2c337eb2?w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500"></div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2 flex justify-between items-center">Banners e Lonas <i class="fa-solid fa-arrow-right text-gray-400 group-hover:text-[#4aa317] transition-colors"></i></h3>
+                        </div>
+                    </div>
+                    <!-- Categoria 2 -->
+                    <div onclick="abrirModalGrafica('Cartões e Panfletos', [
+                            {nome: 'Cartão Premium', img: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&q=80'},
+                            {nome: 'Cartão Verniz', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&q=80'},
+                            {nome: 'Flyers A5', img: 'https://images.unsplash.com/photo-1621844855018-b2a8ed21d15c?w=400&q=80'},
+                            {nome: 'Panfleto Dobrável', img: 'https://images.unsplash.com/photo-1587349942702-861c8a14e6fa?w=400&q=80'}
+                        ])" class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-200 overflow-hidden cursor-pointer group">
+                        <div class="overflow-hidden h-48"><img src="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500"></div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2 flex justify-between items-center">Cartões e Panfletos <i class="fa-solid fa-arrow-right text-gray-400 group-hover:text-[#4aa317] transition-colors"></i></h3>
+                        </div>
+                    </div>
+                    <!-- Categoria 3 -->
+                    <div onclick="abrirModalGrafica('Encadernações', [
+                            {nome: 'Espiral Comum', img: 'https://images.unsplash.com/photo-1544457070-4cd773b4d71e?w=400&q=80'},
+                            {nome: 'Capa Dura', img: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&q=80'},
+                            {nome: 'Impressão Livretos', img: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&q=80'},
+                            {nome: 'Apostilas', img: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=400&q=80'}
+                        ])" class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-200 overflow-hidden cursor-pointer group">
+                        <div class="overflow-hidden h-48"><img src="https://images.unsplash.com/photo-1544457070-4cd773b4d71e?w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500"></div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2 flex justify-between items-center">Encadernações <i class="fa-solid fa-arrow-right text-gray-400 group-hover:text-[#4aa317] transition-colors"></i></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-300 rounded-2xl p-8 text-center max-w-4xl mx-auto shadow-sm">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Precisa de um material específico?</h3>
+                    <a href="https://wa.me/5516999999999?text=Olá!%20Gostaria%20de%20fazer%20um%20orçamento%20com%20a%20Gráfica%20Redenção." target="_blank" class="inline-flex items-center justify-center bg-[#4aa317] text-white px-8 py-4 rounded-full font-bold hover:bg-[#3b8212] transition shadow-md text-lg mt-4 border border-[#4aa317]">
+                        <i class="fa-brands fa-whatsapp text-3xl mr-3"></i> Solicitar Orçamento
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= INTERNA (Dashboard e Visão Geral) ================= -->
+        <section id="interna" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 py-12">
+                <div class="flex items-center space-x-4 mb-8 border-b-2 border-[#4aa317] pb-4">
+                    <div class="bg-[#e8f5e1] p-3 rounded-xl"><i class="fa-solid fa-shield-halved text-3xl text-[#4aa317]"></i></div>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-gray-900">Gestão Interna</h2>
+                        <p class="text-sm text-gray-600 font-semibold mt-1"><i class="fa-solid fa-lock text-[#4aa317] mr-1"></i> Ambiente Restrito (Conformidade LGPD)</p>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação Rápida -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+                    <button onclick="navigateTo('cadastro-atendidos')" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:border-[#4aa317] hover:shadow-md transition group text-left">
+                        <div class="bg-gray-100 p-3 rounded-full mr-4 group-hover:bg-[#4aa317] transition"><i class="fa-solid fa-user-plus text-xl text-gray-600 group-hover:text-white"></i></div>
+                        <div><h3 class="font-bold text-gray-900">Novo Cadastro</h3><p class="text-xs text-gray-500">Adicionar atendido</p></div>
+                    </button>
+                    <button onclick="navigateTo('controle-frequencia')" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:border-[#4aa317] hover:shadow-md transition group text-left">
+                        <div class="bg-gray-100 p-3 rounded-full mr-4 group-hover:bg-[#4aa317] transition"><i class="fa-solid fa-calendar-check text-xl text-gray-600 group-hover:text-white"></i></div>
+                        <div><h3 class="font-bold text-gray-900">Frequência</h3><p class="text-xs text-gray-500">Chamada diária</p></div>
+                    </button>
+                    <button onclick="navigateTo('registro-ocorrencias')" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:border-[#4aa317] hover:shadow-md transition group text-left">
+                        <div class="bg-gray-100 p-3 rounded-full mr-4 group-hover:bg-[#4aa317] transition"><i class="fa-solid fa-triangle-exclamation text-xl text-gray-600 group-hover:text-white"></i></div>
+                        <div><h3 class="font-bold text-gray-900">Ocorrência</h3><p class="text-xs text-gray-500">Registro sigiloso</p></div>
+                    </button>
+                    <button onclick="navigateTo('gestao-eventos')" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:border-[#4aa317] hover:shadow-md transition group text-left">
+                        <div class="bg-gray-100 p-3 rounded-full mr-4 group-hover:bg-[#4aa317] transition"><i class="fa-solid fa-calendar-plus text-xl text-gray-600 group-hover:text-white"></i></div>
+                        <div><h3 class="font-bold text-gray-900">Eventos</h3><p class="text-xs text-gray-500">Gerenciar agenda</p></div>
+                    </button>
+                </div>
+
+                <!-- Visão Geral (Tabela Unificada) -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-300 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-xl font-bold text-gray-900"><i class="fa-solid fa-users mr-2 text-[#4aa317]"></i> Visão Geral</h3>
+                            <span class="text-sm font-bold bg-[#e8f5e1] text-[#4aa317] py-1 px-3 rounded-full" id="totalAtendidosBadge">Total: 0</span>
+                        </div>
+                        
+                        <!-- Filtro de Data para Frequência -->
+                        <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-lg border border-gray-300 shadow-sm">
+                            <i class="fa-solid fa-filter text-gray-400 text-sm"></i>
+                            <span class="text-sm font-medium text-gray-600">Frequência em:</span>
+                            <input type="date" id="filtroDataGeral" onchange="renderVisaoGeral()" class="border-none bg-transparent text-sm font-bold text-gray-900 focus:outline-none cursor-pointer">
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-white">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Nome</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Responsável</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Turno</th>
+                                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">Presença (Filtro)</th>
+                                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">Ocorrências</th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaGeralBody" class="bg-gray-50/30 divide-y divide-gray-200">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- === SUBMÓDULOS INTERNOS (Forms) === -->
+        
+        <!-- Cadastro -->
+        <section id="cadastro-atendidos" class="page-section">
+            <div class="max-w-4xl mx-auto px-4 py-12">
+                <button onclick="navigateTo('interna')" class="text-[#4aa317] hover:text-[#3b8212] font-bold mb-6 flex items-center transition underline underline-offset-4"><i class="fa-solid fa-arrow-left mr-2"></i> Voltar ao Painel</button>
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-300">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b pb-4">Novo Cadastro</h2>
+                    <form id="formCadastro" class="space-y-6" onsubmit="salvarCadastro(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="block text-sm font-semibold text-gray-700">Nome Completo</label><input type="text" id="cadNome" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] focus:ring-[#4aa317] bg-gray-50"></div>
+                            <div><label class="block text-sm font-semibold text-gray-700">Data Nasc.</label><input type="date" id="cadNasc" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] focus:ring-[#4aa317] bg-gray-50"></div>
+                            <div><label class="block text-sm font-semibold text-gray-700">Responsável Legal</label><input type="text" id="cadResp" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] focus:ring-[#4aa317] bg-gray-50"></div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700">Turno</label>
+                                <select id="cadTurno" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] focus:ring-[#4aa317] bg-gray-50">
+                                    <option value="Manhã">Manhã</option>
+                                    <option value="Tarde">Tarde</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg border border-gray-300 mt-6 flex items-start">
+                            <input type="checkbox" required class="mt-1 mr-3 w-4 h-4 text-[#4aa317] focus:ring-[#4aa317] rounded border-gray-400 accent-[#4aa317]"> 
+                            <span class="text-gray-800 font-medium text-sm">Declaro que possuo autorização legal (LGPD) para coletar e armazenar estes dados sensíveis, utilizando-os estritamente para o acompanhamento social da instituição.</span>
+                        </div>
+                        <div class="flex justify-end pt-4 border-t border-gray-200"><button type="submit" class="bg-[#4aa317] text-white px-8 py-3 rounded-md font-bold hover:bg-[#3b8212] transition shadow-sm border border-[#4aa317]">Salvar Cadastro</button></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Frequência -->
+        <section id="controle-frequencia" class="page-section">
+            <div class="max-w-5xl mx-auto px-4 py-12">
+                <button onclick="navigateTo('interna')" class="text-[#4aa317] hover:text-[#3b8212] font-bold mb-6 flex items-center transition underline underline-offset-4"><i class="fa-solid fa-arrow-left mr-2"></i> Voltar ao Painel</button>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-300 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h2 class="text-xl font-bold text-gray-900">Chamada Diária</h2>
+                        <div class="flex items-center space-x-3">
+                            <label class="font-medium text-gray-600 text-sm">Data da Oficina:</label>
+                            <input type="date" id="dataFrequencia" class="border-gray-300 rounded-md p-2 border font-bold text-gray-900 focus:border-[#4aa317] focus:ring-[#4aa317]">
+                        </div>
+                    </div>
+                    <form onsubmit="salvarFrequencia(event)">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-white"><tr><th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Atendido</th><th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Horário e Presença</th></tr></thead>
+                            <tbody id="tabelaFrequenciaBody" class="bg-white divide-y divide-gray-100"></tbody>
+                        </table>
+                        <div class="p-5 bg-gray-50 border-t border-gray-200 flex justify-end"><button type="submit" class="bg-[#4aa317] text-white px-8 py-2.5 rounded-md font-bold hover:bg-[#3b8212] transition shadow-sm border border-[#4aa317]">Salvar Frequência</button></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ocorrências -->
+        <section id="registro-ocorrencias" class="page-section">
+            <div class="max-w-4xl mx-auto px-4 py-12">
+                <button onclick="navigateTo('interna')" class="text-[#4aa317] hover:text-[#3b8212] font-bold mb-6 flex items-center transition underline underline-offset-4"><i class="fa-solid fa-arrow-left mr-2"></i> Voltar ao Painel</button>
+                <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-[#4aa317]">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b pb-4 flex items-center"><i class="fa-solid fa-user-shield text-[#4aa317] mr-3"></i> Registro Sigiloso</h2>
+                    <form id="formOcorrencia" class="space-y-6" onsubmit="salvarOcorrencia(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700">Selecione o Atendido</label>
+                                <select id="ocoAtendido" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] focus:ring-[#4aa317] bg-gray-50"></select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm font-semibold text-gray-700">Data</label><input type="date" id="ocoData" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] bg-gray-50"></div>
+                                <div><label class="block text-sm font-semibold text-gray-700">Horário</label><input type="time" id="ocoHora" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] bg-gray-50"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Categoria da Ocorrência</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <label class="border border-gray-300 bg-gray-50 rounded-md p-3 flex items-center cursor-pointer hover:bg-gray-200 transition text-sm font-medium text-gray-800">
+                                    <input type="radio" name="ocoCategoria" value="Saúde" required class="accent-[#4aa317] mr-2"> Saúde
+                                </label>
+                                <label class="border border-gray-300 bg-gray-50 rounded-md p-3 flex items-center cursor-pointer hover:bg-gray-200 transition text-sm font-medium text-gray-800">
+                                    <input type="radio" name="ocoCategoria" value="Comportamento" required class="accent-[#4aa317] mr-2"> Comportamento
+                                </label>
+                                <label class="border border-gray-300 bg-gray-50 rounded-md p-3 flex items-center cursor-pointer hover:bg-gray-200 transition text-sm font-medium text-gray-800">
+                                    <input type="radio" name="ocoCategoria" value="Perda Material" required class="accent-[#4aa317] mr-2"> Perda Material
+                                </label>
+                                <label class="border border-gray-300 bg-gray-50 rounded-md p-3 flex items-center cursor-pointer hover:bg-gray-200 transition text-sm font-medium text-gray-800">
+                                    <input type="radio" name="ocoCategoria" value="Familiar/Outros" required class="accent-[#4aa317] mr-2"> Outros
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700">Relato Profissional</label>
+                            <textarea id="ocoRelato" rows="5" required placeholder="Descreva a situação, contexto e ações tomadas..." class="mt-2 w-full border-gray-300 rounded-md p-3 border focus:border-[#4aa317] focus:ring-[#4aa317] bg-gray-50"></textarea>
+                        </div>
+                        <div class="flex justify-end border-t pt-6"><button type="submit" class="bg-[#4aa317] text-white px-8 py-3 rounded-md font-bold hover:bg-[#3b8212] transition shadow-sm flex items-center border border-[#4aa317]"><i class="fa-solid fa-lock mr-2"></i> Gravar no Histórico</button></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gestão de Eventos -->
+        <section id="gestao-eventos" class="page-section">
+            <div class="max-w-4xl mx-auto px-4 py-12">
+                <button onclick="navigateTo('interna')" class="text-[#4aa317] hover:text-[#3b8212] font-bold mb-6 flex items-center transition underline underline-offset-4"><i class="fa-solid fa-arrow-left mr-2"></i> Voltar ao Painel</button>
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-300 border-t-4 border-[#4aa317]">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b pb-4"><i class="fa-solid fa-calendar-plus text-[#4aa317] mr-2"></i> Publicar Novo Evento</h2>
+                    <form id="formEvento" class="space-y-6" onsubmit="salvarEvento(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700">Título do Evento</label><input type="text" id="evTitulo" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] bg-gray-50"></div>
+                            <div><label class="block text-sm font-semibold text-gray-700">Data e Hora</label><input type="datetime-local" id="evData" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] bg-gray-50"></div>
+                            <div><label class="block text-sm font-semibold text-gray-700">Local</label><input type="text" id="evLocal" required placeholder="Ex: Quadra do Lar Redenção" class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] bg-gray-50"></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700">URL da Imagem de Capa</label><input type="url" id="evImagem" placeholder="https://exemplo.com/imagem.jpg" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] bg-gray-50 text-sm"></div>
+                        </div>
+                        <div><label class="block text-sm font-semibold text-gray-700">Descrição Breve</label><textarea id="evDesc" rows="3" required class="mt-2 w-full border-gray-300 rounded-md p-2.5 border focus:border-[#4aa317] bg-gray-50"></textarea></div>
+                        <div class="flex justify-end border-t pt-6"><button type="submit" class="bg-[#4aa317] text-white px-8 py-3 rounded-md font-bold hover:bg-[#3b8212] transition shadow-sm border border-[#4aa317]">Publicar Evento no Portal</button></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#4aa317] text-white py-10 mt-auto border-t-4 border-[#3b8212]">
+        <div class="max-w-7xl mx-auto px-4 text-center md:text-left flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <img src="logo.png" alt="Lar Escola Redenção" class="h-16 w-auto mb-3 mx-auto md:mx-0 object-contain">
+                <p class="text-white text-sm mt-1">Transformando realidades através da educação e acolhimento.</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-center md:text-right">
+                <p class="text-sm">&copy; 2026 Projeto de Sistema Web - IFSP.</p>
+                <p class="text-xs opacity-80 mt-1">Equipe: Ana, Eduardo, Gabriel, Gabrielle, Miguel, Natan e Tufy.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAIS GERAIS -->
+    
+    <!-- Modal PIX / Cartão (Simulações) -->
+    <div id="pixModal" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center border border-gray-300">
+            <h3 class="text-2xl font-bold text-[#4aa317] mb-2">Pagamento via PIX</h3>
+            <p class="text-gray-500 mb-6 text-sm">Escaneie o QR Code ou copie o código abaixo.</p>
+            <div class="bg-gray-100 p-4 rounded-xl inline-block mb-4 border border-gray-300">
+                <i class="fa-solid fa-qrcode text-8xl text-gray-800"></i>
+            </div>
+            <input type="text" value="00020126580014br.gov.bcb.pix.larredencao..." readonly class="w-full text-center text-xs font-mono bg-gray-50 border border-gray-300 p-3 rounded-lg mb-6 outline-none text-gray-600">
+            <div class="flex flex-col gap-3">
+                <button onclick="simularPagamentoPix()" class="w-full bg-[#4aa317] text-white font-bold py-3.5 rounded-lg hover:bg-[#3b8212] border border-[#4aa317] transition">Já realizei o pagamento (Simular)</button>
+                <button onclick="fecharModal('pixModal')" class="w-full text-gray-500 hover:text-[#4aa317] font-medium py-2">Cancelar Operação</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ccModal" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-300">
+            <h3 class="text-xl font-bold text-[#4aa317] mb-6 border-b border-gray-200 pb-3">Assinatura Recorrente</h3>
+            <form onsubmit="simularPagamentoCartao(event)" class="space-y-4">
+                <div><label class="text-xs font-bold text-gray-500 uppercase">Número do Cartão</label><input type="text" required placeholder="0000 0000 0000 0000" class="w-full border border-gray-300 p-3 rounded-lg mt-1 bg-gray-50 focus:border-[#4aa317] focus:ring-1 focus:ring-[#4aa317] outline-none"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">Validade</label><input type="text" required placeholder="MM/AA" class="w-full border border-gray-300 p-3 rounded-lg mt-1 bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">CVV</label><input type="password" required placeholder="***" class="w-full border border-gray-300 p-3 rounded-lg mt-1 bg-gray-50"></div>
+                </div>
+                <div><label class="text-xs font-bold text-gray-500 uppercase">Nome Impresso</label><input type="text" required class="w-full border border-gray-300 p-3 rounded-lg mt-1 bg-gray-50 uppercase"></div>
+                <button type="submit" class="w-full bg-[#4aa317] text-white font-bold py-3.5 rounded-lg hover:bg-[#3b8212] border border-[#4aa317] transition mt-6 shadow-md">Confirmar Assinatura Segura</button>
+                <button type="button" onclick="fecharModal('ccModal')" class="w-full text-center text-gray-500 hover:text-[#4aa317] font-medium py-2 mt-2">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Atendido -->
+    <div id="editModal" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-300">
+            <h3 class="text-xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-3">Editar Dados do Atendido</h3>
+            <form id="formEdit" onsubmit="salvarEdicao(event)" class="space-y-4">
+                <input type="hidden" id="editId">
+                <div><label class="text-sm font-semibold text-gray-700">Nome</label><input type="text" id="editNome" required class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:border-[#4aa317]"></div>
+                <div><label class="text-sm font-semibold text-gray-700">Responsável</label><input type="text" id="editResp" required class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:border-[#4aa317]"></div>
+                <div><label class="text-sm font-semibold text-gray-700">Turno</label>
+                    <select id="editTurno" required class="w-full border border-gray-300 p-2.5 rounded-lg mt-1 focus:border-[#4aa317]">
+                        <option value="Manhã">Manhã</option>
+                        <option value="Tarde">Tarde</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-[#4aa317] text-white font-bold py-3 rounded-lg hover:bg-[#3b8212] border border-[#4aa317] transition mt-6">Salvar Alterações</button>
+                <button type="button" onclick="fecharModal('editModal')" class="w-full text-center text-gray-500 hover:text-[#4aa317] font-medium py-2 mt-1">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Historico Ocorrencias -->
+    <div id="ocorrenciasModal" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 max-h-[90vh] flex flex-col border border-gray-300">
+            <h3 class="text-xl font-bold text-gray-900 mb-2" id="ocoModalTitle">Histórico de Ocorrências</h3>
+            <p class="text-sm text-gray-500 mb-4 border-b border-gray-200 pb-4">Acesso restrito e sigiloso.</p>
+            
+            <div class="overflow-y-auto flex-grow pr-2 space-y-4" id="ocoModalList">
+                <!-- Preenchido via JS -->
+            </div>
+            
+            <button onclick="fecharModal('ocorrenciasModal')" class="mt-6 w-full bg-gray-200 text-gray-900 font-bold py-3 rounded-lg hover:bg-gray-300 transition">Fechar Histórico</button>
+        </div>
+    </div>
+
+    <!-- Modal Galeria Gráfica -->
+    <div id="graficaModal" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto border border-gray-300">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2" id="grafModalTitle">Galeria de Modelos</h3>
+            <p class="text-sm text-gray-500 mb-6 border-b border-gray-200 pb-4">Confira alguns dos trabalhos realizados e opções disponíveis:</p>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-2 gap-4 mb-8" id="grafModalGallery">
+                <!-- Preenchido via JS (Galeria) -->
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <a href="https://wa.me/5516999999999?text=Olá!%20Gostaria%20de%20fazer%20um%20orçamento%20com%20a%20Gráfica%20Redenção." target="_blank" class="w-full bg-[#4aa317] text-white font-bold py-3 rounded-lg hover:bg-[#3b8212] border border-[#4aa317] transition flex items-center justify-center">
+                    <i class="fa-brands fa-whatsapp mr-2 text-xl"></i> Solicitar Orçamento no WhatsApp
+                </a>
+                <button onclick="fecharModal('graficaModal')" class="w-full text-gray-500 font-medium py-2 hover:text-gray-900">Voltar para a página</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes do Evento -->
+    <div id="eventoModal" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-300 flex flex-col max-h-[90vh]">
+            <img id="evModalImg" src="" class="w-full h-48 object-cover">
+            <div class="p-8 overflow-y-auto">
+                <div class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide"><i class="fa-regular fa-calendar mr-1"></i> <span id="evModalData"></span></div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4" id="evModalTitle"></h3>
+                <div class="flex items-center text-sm font-medium text-gray-800 bg-gray-100 p-3 rounded-lg border border-gray-200 mb-4">
+                    <i class="fa-solid fa-location-dot text-[#4aa317] mr-2 text-lg"></i> <span id="evModalLocal"></span>
+                </div>
+                <p class="text-gray-700 leading-relaxed" id="evModalDesc"></p>
+            </div>
+            <div class="p-6 border-t border-gray-200 bg-gray-50">
+                <button onclick="fecharModal('eventoModal')" class="w-full bg-gray-200 text-gray-900 font-bold py-3 rounded-lg hover:bg-gray-300 transition">Fechar Detalhes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- NAVEGAÇÃO SPA ---
+        function navigateTo(sectionId) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            
+            const target = document.getElementById(sectionId);
+            target.classList.remove('hidden');
+            void target.offsetWidth; 
+            target.classList.add('active');
+            
+            document.getElementById('mobile-menu').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Triggers Específicos
+            if(sectionId === 'inicio') renderEventosHome();
+            if(sectionId === 'interna') {
+                document.getElementById('filtroDataGeral').value = new Date().toISOString().split('T')[0];
+                renderVisaoGeral();
+            }
+            if(sectionId === 'controle-frequencia') renderTabelaFrequencia();
+            if(sectionId === 'registro-ocorrencias') renderSelectOcorrencia();
+            if(sectionId === 'eventos') renderEventosPublicos();
+        }
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // --- SISTEMA DE TOASTS ---
+        function mostrarToast(mensagem, tipo = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-[#4aa317] text-white';
+            let iconClass = 'fa-info-circle text-white';
+            if (tipo === 'success') { iconClass = 'fa-check-circle text-white'; }
+            if (tipo === 'error') { iconClass = 'fa-circle-exclamation text-white'; }
+            
+            toast.className = `toast flex items-center px-6 py-4 rounded-xl shadow-xl ${bgClass} mb-2 border border-gray-200`;
+            toast.innerHTML = `<i class="fa-solid ${iconClass} text-xl mr-3"></i> <span class="font-medium tracking-wide">${mensagem}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3500);
+        }
+
+        // --- GERAÇÃO DE PDF (TRANSPARÊNCIA) ---
+        function baixarPDF(tituloRelatorio) {
+            mostrarToast("Gerando documento PDF, por favor aguarde...", "info");
+            
+            const dataHoje = new Date().toLocaleDateString('pt-BR');
+            const htmlConteudo = `
+                <div style="font-family: Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.6;">
+                    <div style="text-align: center; border-bottom: 2px solid #171717; padding-bottom: 20px; margin-bottom: 30px;">
+                        <h1 style="color: #171717; margin: 0; font-size: 24px;">LAR ESCOLA REDENÇÃO</h1>
+                        <p style="margin: 5px 0 0 0; color: #525252; font-size: 14px;">CNPJ: 00.000.000/0001-00 | Utilidade Pública Municipal</p>
+                    </div>
+                    
+                    <h2 style="color: #171717; font-size: 20px;">${tituloRelatorio}</h2>
+                    <p style="font-size: 12px; color: #525252;">Data de emissão: ${dataHoje}</p>
+                    
+                    <p style="margin-top: 20px; text-align: justify;">Este documento visa comprovar a idoneidade, transparência e rastreabilidade dos recursos recebidos pela instituição, cumprindo nossas diretrizes de prestação de contas à comunidade e aos nossos mantenedores.</p>
+                    
+                    <h3 style="margin-top: 30px; border-bottom: 1px solid #d4d4d8; padding-bottom: 5px; color: #262626;">Resumo Financeiro (Simulação Fictícia)</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;">
+                        <tr style="background-color: #f5f5f5;">
+                            <th style="padding: 12px; border: 1px solid #d4d4d8; text-align: left;">Origem do Recurso</th>
+                            <th style="padding: 12px; border: 1px solid #d4d4d8; text-align: right;">Valor Arrecadado (R$)</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #d4d4d8;">Doações Avulsas (PIX/Depósito)</td>
+                            <td style="padding: 12px; border: 1px solid #d4d4d8; text-align: right;">R$ 15.450,00</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #d4d4d8;">Apadrinhamento Recorrente</td>
+                            <td style="padding: 12px; border: 1px solid #d4d4d8; text-align: right;">R$ 22.000,00</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #d4d4d8;">Receita Líquida - Gráfica Redenção</td>
+                            <td style="padding: 12px; border: 1px solid #d4d4d8; text-align: right;">R$ 8.750,00</td>
+                        </tr>
+                        <tr style="font-weight: bold; background-color: #e5e5e5; color: #171717;">
+                            <td style="padding: 12px; border: 1px solid #d4d4d8;">TOTAL APLICADO EM PROJETOS</td>
+                            <td style="padding: 12px; border: 1px solid #d4d4d8; text-align: right;">R$ 46.200,00</td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-top: 60px; text-align: center;">
+                        <div style="border-top: 1px solid #a1a1aa; width: 300px; margin: 0 auto; padding-top: 10px;">
+                            <strong>Diretoria Financeira</strong><br>
+                            <span style="font-size: 12px; color: #525252;">Lar Escola Redenção</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const opt = {
+                margin:       [0, 0, 0, 0],
+                filename:     `${tituloRelatorio.replace(/[^a-zA-Z0-9]/g, '_')}_LarRedencao.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(htmlConteudo).save().then(() => {
+                mostrarToast("PDF baixado com sucesso!", "success");
+            }).catch(err => {
+                mostrarToast("Erro ao gerar PDF.", "error");
+                console.error(err);
+            });
+        }
+
+        // --- BANCO DE DADOS MOCKADO ---
+        let mockAtendidos = [
+            { id: 1, nome: "Carlos Henrique Souza", resp: "Maria Souza", nasc: "2015-05-10", turno: "Manhã" },
+            { id: 2, nome: "Felipe Alves", resp: "João Alves", nasc: "2014-08-22", turno: "Tarde" },
+            { id: 3, nome: "Lucas Mendes Santos", resp: "Ana Mendes", nasc: "2016-01-05", turno: "Manhã" }
+        ];
+        let mockFrequencia = {}; 
+        let mockOcorrencias = [
+            { idAtendido: 2, data: "2026-05-02", hora: "14:30", categoria: "Saúde", relato: "Apresentou febre durante a oficina, responsável foi acionado." }
+        ];
+        let nextAtendidoId = 4;
+
+        let mockEventos = [
+            { id: 1, titulo: "Bazar Beneficente de Inverno", data: "2026-06-15T09:00", local: "Quadra Poliesportiva do Lar", desc: "Venda de roupas, artesanato e salgados. Todo lucro é revertido para manutenções.", imagem: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80" },
+            { id: 2, titulo: "Festa Junina da Redenção", data: "2026-06-28T18:00", local: "Pátio Central", desc: "Venha pular fogueira e comer comidas típicas com a nossa comunidade!", imagem: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80" }
+        ];
+        let nextEventoId = 3;
+
+        // --- MODAL DE GALERIA GRÁFICA ---
+        function abrirModalGrafica(titulo, imagensItens) {
+            document.getElementById('grafModalTitle').innerText = titulo;
+            const gallery = document.getElementById('grafModalGallery');
+            gallery.innerHTML = '';
+            imagensItens.forEach(item => {
+                gallery.innerHTML += `
+                    <div class="border border-gray-200 rounded-lg overflow-hidden bg-gray-50 shadow-sm hover:shadow-md transition">
+                        <img src="${item.img}" class="w-full h-32 object-cover transition duration-300">
+                        <div class="p-3 text-center text-sm font-bold text-gray-800 border-t border-gray-200">${item.nome}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('graficaModal').classList.remove('hidden');
+        }
+
+        // --- EVENTOS ---
+        function formatarEventoCard(ev) {
+            const d = new Date(ev.data);
+            const dataFormatada = d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+            // fallback se a imagem não carregar ou não for preenchida no mock
+            const imgUrl = ev.imagem || "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?w=600&q=80";
+
+            return `
+                <div onclick="abrirModalEvento(${ev.id})" class="cursor-pointer bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition flex flex-col duration-500">
+                    <img src="${imgUrl}" class="w-full h-48 object-cover">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide"><i class="fa-regular fa-calendar mr-1"></i> ${dataFormatada}</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">${ev.titulo}</h3>
+                        <p class="text-sm text-gray-600 mb-4 flex-grow line-clamp-3">${ev.desc}</p>
+                        <div class="flex items-center text-sm font-medium text-gray-800 bg-gray-100 p-3 rounded-lg border border-gray-200">
+                            <i class="fa-solid fa-location-dot text-[#4aa317] mr-2 text-lg"></i> ${ev.local}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function abrirModalEvento(id) {
+            const ev = mockEventos.find(e => e.id === id);
+            if(!ev) return;
+            
+            const d = new Date(ev.data);
+            const dataFormatada = d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+            
+            document.getElementById('evModalImg').src = ev.imagem || "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?w=600&q=80";
+            document.getElementById('evModalData').innerText = dataFormatada;
+            document.getElementById('evModalTitle').innerText = ev.titulo;
+            document.getElementById('evModalLocal').innerText = ev.local;
+            document.getElementById('evModalDesc').innerText = ev.desc;
+            
+            document.getElementById('eventoModal').classList.remove('hidden');
+        }
+
+        function renderEventosPublicos() {
+            const container = document.getElementById('listaEventosPublicos');
+            container.innerHTML = '';
+            if(mockEventos.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-500">Nenhum evento agendado no momento.</p>`;
+                return;
+            }
+            // Exibir ordenado por data
+            const eventosOrdenados = [...mockEventos].sort((a,b) => new Date(a.data) - new Date(b.data));
+            eventosOrdenados.forEach(ev => {
+                container.innerHTML += formatarEventoCard(ev);
+            });
+        }
+
+        function renderEventosHome() {
+            const container = document.getElementById('listaEventosHome');
+            if(!container) return; // safeguard if not on home
+            container.innerHTML = '';
+            if(mockEventos.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-500">Fique de olho, em breve teremos novos eventos!</p>`;
+                return;
+            }
+            // Pega os 3 mais recentes/próximos
+            const eventosOrdenados = [...mockEventos].sort((a,b) => new Date(a.data) - new Date(b.data)).slice(0, 3);
+            eventosOrdenados.forEach(ev => {
+                container.innerHTML += formatarEventoCard(ev);
+            });
+        }
+
+        function salvarEvento(e) {
+            e.preventDefault();
+            mockEventos.push({
+                id: nextEventoId++,
+                titulo: document.getElementById('evTitulo').value,
+                data: document.getElementById('evData').value,
+                local: document.getElementById('evLocal').value,
+                imagem: document.getElementById('evImagem').value,
+                desc: document.getElementById('evDesc').value
+            });
+            document.getElementById('formEvento').reset();
+            mostrarToast('Evento publicado com sucesso no portal!', 'success');
+            setTimeout(() => navigateTo('interna'), 1500);
+        }
+
+        // --- GESTÃO INTERNA (Visão Geral e Frequência Filter) ---
+        function renderVisaoGeral() {
+            const tbody = document.getElementById('tabelaGeralBody');
+            const dataFiltro = document.getElementById('filtroDataGeral').value;
+            
+            tbody.innerHTML = '';
+            
+            mockAtendidos.forEach(a => {
+                let presenca = "<span class='text-gray-400 font-medium'>—</span>";
+                const freqRecord = mockFrequencia[dataFiltro]?.[a.id];
+                
+                if(freqRecord) {
+                    let badgesHtml = '';
+                    for (const [horario, status] of Object.entries(freqRecord)) {
+                        if (status === 'P') {
+                            badgesHtml += `<div class='inline-flex flex-col items-center justify-center bg-gray-200 text-gray-800 text-[10px] font-bold px-1.5 py-0.5 rounded-md m-0.5'><span class="flex items-center text-xs"><i class='fa-solid fa-check mr-1 text-[#4aa317]'></i> P</span><span class="font-normal opacity-80 whitespace-nowrap">${horario}</span></div>`;
+                        } else {
+                            badgesHtml += `<div class='inline-flex flex-col items-center justify-center bg-[#4aa317] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md m-0.5'><span class="flex items-center text-xs"><i class='fa-solid fa-xmark mr-1'></i> F</span><span class="font-normal opacity-90 whitespace-nowrap">${horario}</span></div>`;
+                        }
+                    }
+                    presenca = `<div class="flex flex-wrap justify-center">${badgesHtml}</div>`;
+                }
+                
+                const ocosAtendido = mockOcorrencias.filter(o => o.idAtendido == a.id);
+                const numOco = ocosAtendido.length;
+                let badgeOco = `<span class="text-gray-400 font-medium">0</span>`;
+                
+                if (numOco > 0) {
+                    badgeOco = `<button onclick="verOcorrencias(${a.id})" class="bg-gray-200 hover:bg-gray-300 text-gray-900 text-xs font-bold px-3 py-1 rounded-full border border-gray-400 transition" title="Ver Histórico">${numOco} Registros <i class="fa-solid fa-eye ml-1 text-gray-600"></i></button>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white transition-colors">
+                        <td class="px-6 py-4 font-bold text-gray-800">${a.nome}</td>
+                        <td class="px-6 py-4 text-gray-500 text-sm">${a.resp}</td>
+                        <td class="px-6 py-4 text-gray-600 text-sm font-medium">${a.turno}</td>
+                        <td class="px-6 py-4 text-center">${presenca}</td>
+                        <td class="px-6 py-4 text-center">${badgeOco}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="abrirEditModal(${a.id})" class="text-gray-900 hover:text-[#4aa317] bg-gray-100 hover:bg-gray-200 font-semibold px-3 py-1.5 rounded transition border border-gray-300"><i class="fa-solid fa-pen text-xs mr-1"></i> Editar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('totalAtendidosBadge').innerText = `Total: ${mockAtendidos.length} ativos`;
+        }
+
+        // Histórico de Ocorrências Modal
+        function verOcorrencias(idAtendido) {
+            const atendido = mockAtendidos.find(a => a.id == idAtendido);
+            const ocos = mockOcorrencias.filter(o => o.idAtendido == idAtendido);
+            
+            document.getElementById('ocoModalTitle').innerText = `Histórico: ${atendido.nome}`;
+            const lista = document.getElementById('ocoModalList');
+            lista.innerHTML = '';
+            
+            // Ordenar da mais recente para mais antiga
+            ocos.sort((a,b) => new Date(b.data + "T" + b.hora) - new Date(a.data + "T" + a.hora)).forEach(oco => {
+                const dataFormatada = new Date(oco.data + 'T12:00:00').toLocaleDateString('pt-BR');
+                lista.innerHTML += `
+                    <div class="bg-gray-100 border-l-4 border-[#4aa317] p-4 rounded-r-lg shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-xs font-bold text-gray-600"><i class="fa-regular fa-calendar mr-1"></i> ${dataFormatada} às ${oco.hora}</p>
+                            <span class="bg-[#4aa317] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">${oco.categoria}</span>
+                        </div>
+                        <p class="text-sm text-gray-800 mt-1">${oco.relato}</p>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('ocorrenciasModal').classList.remove('hidden');
+        }
+
+        // --- OUTRAS FUNÇÕES INTERNAS ---
+        function salvarCadastro(e) {
+            e.preventDefault();
+            mockAtendidos.push({ id: nextAtendidoId++, nome: document.getElementById('cadNome').value, resp: document.getElementById('cadResp').value, nasc: document.getElementById('cadNasc').value, turno: document.getElementById('cadTurno').value });
+            document.getElementById('formCadastro').reset();
+            mostrarToast('Cadastro salvo (LGPD aplicado)', 'success');
+            setTimeout(() => navigateTo('interna'), 1500);
+        }
+
+        function renderTabelaFrequencia() {
+            document.getElementById('dataFrequencia').value = new Date().toISOString().split('T')[0];
+            const tbody = document.getElementById('tabelaFrequenciaBody');
+            tbody.innerHTML = '';
+            
+            const horariosManha = ["07h às 09h", "09h às 11h"];
+            const horariosTarde = ["13h às 15h", "15h às 17h"];
+
+            mockAtendidos.forEach(a => {
+                const horarios = a.turno === "Manhã" ? horariosManha : horariosTarde;
+                let controlsHtml = '';
+
+                horarios.forEach((horario, idx) => {
+                    controlsHtml += `
+                        <div class="flex flex-col items-center bg-gray-50 px-2 py-1 rounded-lg border border-gray-200">
+                            <span class="text-[10px] font-bold text-gray-600 mb-1">${horario}</span>
+                            <div class="flex space-x-2">
+                                <label class="inline-flex items-center text-gray-800 cursor-pointer">
+                                    <input type="radio" name="freq_${a.id}_${idx}" value="P" checked class="accent-[#4aa317] w-3 h-3 mr-1"> <span class="text-xs">P</span>
+                                </label>
+                                <label class="inline-flex items-center text-gray-800 cursor-pointer">
+                                    <input type="radio" name="freq_${a.id}_${idx}" value="F" class="accent-[#4aa317] w-3 h-3 mr-1"> <span class="text-xs">F</span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 font-bold text-gray-800">${a.nome} <span class="text-xs text-gray-500 font-normal block">${a.turno}</span></td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2 flex-wrap">
+                                ${controlsHtml}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function salvarFrequencia(e) {
+            e.preventDefault();
+            const data = document.getElementById('dataFrequencia').value;
+            if(!mockFrequencia[data]) mockFrequencia[data] = {};
+            
+            const horariosManha = ["07h às 09h", "09h às 11h"];
+            const horariosTarde = ["13h às 15h", "15h às 17h"];
+
+            mockAtendidos.forEach(a => {
+                const horarios = a.turno === "Manhã" ? horariosManha : horariosTarde;
+                mockFrequencia[data][a.id] = {};
+                
+                horarios.forEach((horario, idx) => {
+                    let status = 'P';
+                    document.getElementsByName(`freq_${a.id}_${idx}`).forEach(r => { if(r.checked) status = r.value; });
+                    mockFrequencia[data][a.id][horario] = status;
+                });
+            });
+            mostrarToast('Frequência computada com sucesso!', 'success');
+            setTimeout(() => navigateTo('interna'), 1000);
+        }
+
+        function renderSelectOcorrencia() {
+            const select = document.getElementById('ocoAtendido');
+            select.innerHTML = '<option value="" disabled selected>Selecionar atendido...</option>';
+            mockAtendidos.forEach(a => select.innerHTML += `<option value="${a.id}">${a.nome}</option>`);
+            
+            const agora = new Date();
+            document.getElementById('ocoData').value = agora.toISOString().split('T')[0];
+            document.getElementById('ocoHora').value = agora.toTimeString().split(':')[0] + ":" + agora.toTimeString().split(':')[1];
+        }
+
+        function salvarOcorrencia(e) {
+            e.preventDefault();
+            
+            const radiosCategoria = document.getElementsByName('ocoCategoria');
+            let categoriaSelecionada = "Outros";
+            for(let i = 0; i < radiosCategoria.length; i++) {
+                if(radiosCategoria[i].checked) categoriaSelecionada = radiosCategoria[i].value;
+            }
+
+            mockOcorrencias.push({ 
+                idAtendido: document.getElementById('ocoAtendido').value, 
+                data: document.getElementById('ocoData').value, 
+                hora: document.getElementById('ocoHora').value,
+                categoria: categoriaSelecionada,
+                relato: document.getElementById('ocoRelato').value 
+            });
+            document.getElementById('formOcorrencia').reset();
+            mostrarToast('Registro gravado sob sigilo.', 'success'); 
+            setTimeout(() => navigateTo('interna'), 1500);
+        }
+
+        function abrirEditModal(id) {
+            const atendido = mockAtendidos.find(a => a.id == id);
+            document.getElementById('editId').value = atendido.id;
+            document.getElementById('editNome').value = atendido.nome;
+            document.getElementById('editResp').value = atendido.resp;
+            document.getElementById('editTurno').value = atendido.turno;
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function salvarEdicao(e) {
+            e.preventDefault();
+            const a = mockAtendidos.find(a => a.id == document.getElementById('editId').value);
+            a.nome = document.getElementById('editNome').value;
+            a.resp = document.getElementById('editResp').value;
+            a.turno = document.getElementById('editTurno').value;
+            fecharModal('editModal');
+            mostrarToast('Dados atualizados com sucesso.', 'success');
+            renderVisaoGeral();
+        }
+
+        // --- UI E FINANCEIRO ---
+        function setValorPix(v) { document.getElementById('valorPixPersonalizado').value = v; }
+        function abrirModalPix() { document.getElementById('pixModal').classList.remove('hidden'); }
+        function abrirModalCartao() { document.getElementById('ccModal').classList.remove('hidden'); }
+        function fecharModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function simularPagamentoPix() { fecharModal('pixModal'); mostrarToast('Pagamento PIX confirmado! Obrigado!', 'success'); document.getElementById('valorPixPersonalizado').value = ''; }
+        function simularPagamentoCartao(e) { e.preventDefault(); fecharModal('ccModal'); mostrarToast('Assinatura processada via Gateway Seguro.', 'success'); }
+
+        // Iniciar
+        window.onload = () => { 
+            renderEventosPublicos(); 
+            renderEventosHome(); 
+        };
+    </script>
+</body>
+</html>
